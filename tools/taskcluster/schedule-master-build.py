@@ -122,6 +122,23 @@ def generate_release_task(dependencies):
 			}
 		})
 
+def upload_apk_nimbledroid_task(dependencies):
+	return taskcluster.slugId(), generate_task(
+		name = "Upload Debug APK to Nimbledroid",
+		description = "Upload APKs to Nimbledroid for performance measurement and tracking.",
+		command = ('echo "--" > .adjust_token'
+				   ' && ./gradlew --no-daemon clean assembleFocusWebviewUniversalDebug assembleKlarGeckoArmDebug'
+				   ' && ./tools/taskcluster/nimbledroid_upload.sh'),
+		dependencies = dependencies,
+		scopes = [ 'secrets:get:project/focus/nimbledroid' ],
+		artifacts = {
+			"public": {
+				"type": "directory",
+				"path": "/opt/focus-android/test_artifacts",
+				"expires": taskcluster.stringDate(taskcluster.fromNow('1 week'))
+			}
+		})
+
 
 def generate_task(name, description, command, dependencies = [], artifacts = {}, scopes = [], routes = []):
 	created = datetime.datetime.now()
@@ -195,6 +212,9 @@ if __name__ == "__main__":
 
 	uiGeckoARMTestTaskId, uiGeckoARMTestTask = generate_gecko_ARM_ui_test_task([unitTestTaskId, codeQualityTaskId])
 	schedule_task(queue, uiGeckoARMTestTaskId, uiGeckoARMTestTask)
+
+	uploadNDTaskId, uploadNDTask = upload_apk_nimbledroid_task([unitTestTaskId, codeQualityTaskId])
+	schedule_task(queue, uploadNDTaskId, uploadNDTask)
 
 	releaseTaskId, releaseTask = generate_release_task([unitTestTaskId, codeQualityTaskId])
 	schedule_task(queue, releaseTaskId, releaseTask)
