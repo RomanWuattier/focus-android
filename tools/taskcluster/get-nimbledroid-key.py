@@ -4,7 +4,7 @@
 
 """
 This script talks to the taskcluster secrets service to obtain the
-Google Firebase service account token and write it to the .firebase_token 
+Nimbledroid account key and write it to the .nimbledroid_key
 file in the root directory.
 """
 

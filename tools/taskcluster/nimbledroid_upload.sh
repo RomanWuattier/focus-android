@@ -7,16 +7,16 @@
 # and collects test artifacts into the test_artifacts folder
 
 # If a command fails then do not proceed and fail this script too.
-set -ex
+set -e
 
 # Both the app apk and the test apk need to be uploaded to nimbledroid for analysis
 # Both the webview / geckoview version should be uploaded.  Since they would have different
 # package names, they will be displayed as separate apps
 
+# Prior to running this script,
 # api key should be retrieved from taskcluster
-python tools/taskcluster/get-nimbledroid-key.py
-
 # focusWebviewUniversalDebug and klarGeckoArmDebug should be generated
+
 key=$(<.nimbledroid.key)
 curl -v -F apk=@'app/build/outputs/apk/focusWebviewUniversal/debug/app-focus-webview-universal-debug.apk' \
  -F auto_scenarios=false -u $key: https://nimbledroid.com/api/v2/apks
