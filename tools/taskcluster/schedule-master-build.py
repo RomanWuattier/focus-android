@@ -124,8 +124,8 @@ def generate_release_task(dependencies):
 
 def upload_apk_nimbledroid_task(dependencies):
 	return taskcluster.slugId(), generate_task(
-		name = "Upload Debug APK to Nimbledroid",
-		description = "(Focus for Android) Upload APKs to Nimbledroid for performance measurement and tracking.",
+		name = "(Focus for Android) Upload Debug APK to Nimbledroid",
+		description = "Upload APKs to Nimbledroid for performance measurement and tracking.",
 		command = ('echo "--" > .adjust_token'
 				   ' && ./gradlew --no-daemon clean assembleFocusWebviewUniversalDebug assembleKlarGeckoArmDebug'
 				   ' && python tools/taskcluster/get-nimbledroid-key.py'
