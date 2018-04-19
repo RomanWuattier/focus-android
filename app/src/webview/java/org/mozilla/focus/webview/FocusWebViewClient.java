@@ -225,9 +225,9 @@ import org.mozilla.focus.web.IWebView;
         // Allow pages to blank themselves by loading about:blank. While it's a little incorrect to let pages
         // access our internal URLs, Chrome allows loads to about:blank and, to ensure our behavior conforms
         // to the behavior that most of the web is developed against, we do too.
-        if (url.equals("about:blank")) {
-            return false;
-        }
+        //if (url.equals("about:blank")) {
+        //    return false;
+        //}
 
         // shouldOverrideUrlLoading() is called for both the main frame, and iframes.
         // That can get problematic if an iframe tries to load an unsupported URL.
@@ -246,6 +246,15 @@ import org.mozilla.focus.web.IWebView;
                 callback != null &&
                 IntentUtils.handleExternalUri(view.getContext(), (IWebView) view, url)) {
             return true;
+        }
+
+        // TODO: Manage unreserved word with UrlUtils
+        if (UrlUtils.isAboutUriScheme(uri.getScheme())) {
+            if (url.toLowerCase().endsWith("blank")) {
+                return false;
+            } else {
+                return false;
+            }
         }
 
         return super.shouldOverrideUrlLoading(view, url);

@@ -107,7 +107,8 @@ public class UrlUtils {
                 scheme.startsWith("http") ||
                 scheme.startsWith("https") ||
                 scheme.startsWith("file") ||
-                scheme.startsWith("data"));
+                scheme.startsWith("data") ||
+                scheme.startsWith("about"));
     }
 
     public static boolean isSupportedProtocol(@Nullable final String scheme) {
@@ -179,5 +180,9 @@ public class UrlUtils {
         }
 
         return url.substring(start);
+    }
+
+    public static boolean isAboutUriScheme(@Nullable String scheme) {
+        return scheme != null && scheme.startsWith("about");
     }
 }
