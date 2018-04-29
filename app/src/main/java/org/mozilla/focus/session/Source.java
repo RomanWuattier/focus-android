@@ -5,7 +5,7 @@
 package org.mozilla.focus.session;
 
 /**
- * The source of a sessio: How was this session created? E.g. did we receive an Intent or did the
+ * The source of a session: How was this session created? E.g. did we receive an Intent or did the
  * user start this session?
  */
 public enum Source {

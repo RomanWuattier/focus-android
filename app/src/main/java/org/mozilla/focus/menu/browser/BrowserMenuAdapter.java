@@ -64,6 +64,8 @@ public class BrowserMenuAdapter extends RecyclerView.Adapter<BrowserMenuViewHold
 
         this.items = new ArrayList<>();
 
+        items.add(new MenuItem(R.id.report_site_issue, resources.getString(R.string.menu_report_site_issue)));
+
         if (customTabConfig == null || customTabConfig.showShareMenuItem) {
             items.add(new MenuItem(R.id.share, resources.getString(R.string.menu_share)));
         }

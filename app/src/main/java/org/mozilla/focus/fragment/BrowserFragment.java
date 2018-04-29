@@ -60,6 +60,7 @@ import org.mozilla.focus.menu.context.WebContextMenu;
 import org.mozilla.focus.observer.AverageLoadTimeObserver;
 import org.mozilla.focus.open.OpenWithFragment;
 import org.mozilla.focus.popup.PopupUtils;
+import org.mozilla.focus.screenshot.ScreenshotHandler;
 import org.mozilla.focus.session.NullSession;
 import org.mozilla.focus.session.Session;
 import org.mozilla.focus.session.SessionCallbackProxy;
@@ -342,6 +343,27 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
         } else {
             initialiseNormalBrowserUi(view);
         }
+
+        session.getLoading().observe(this, new NonNullObserver<Boolean>() {
+            @Override
+            protected void onValueChanged(Boolean loading) {
+                if (loading) {
+                    return;
+                }
+
+                // When the WebView is loaded,
+                // If the `MENU` is the source and the loading URL is `WEBCOMPAT_ORIGIN`,
+                // Then post the screenshot.
+                if (session.getSource() == Source.MENU &&
+                    session.getUrl().getValue().startsWith(SupportUtils.WEBCOMPAT_ORIGIN)) {
+                    String screenshot = ScreenshotHandler.provideInstance().getScreenshot();
+                    if (screenshot != null && getWebView() != null) {
+                        ScreenshotHandler.provideInstance()
+                            .postScreenshot(getWebView(), screenshot, SupportUtils.WEBCOMPAT_ORIGIN, null);
+                    }
+                }
+            }
+        });
 
         return view;
     }
@@ -999,7 +1021,7 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
                         SupportUtils.getSumoURLForTopic(getContext(), SupportUtils.SumoTopic.TRACKERS));
                 break;
 
-            case R.id.add_to_homescreen:
+            case R.id.add_to_homescreen: {
                 final IWebView webView = getWebView();
                 if (webView == null) {
                     break;
@@ -1009,15 +1031,30 @@ public class BrowserFragment extends WebFragment implements View.OnClickListener
                 final String title = webView.getTitle();
                 showAddToHomescreenDialog(url, title);
                 break;
+            }
 
             case R.id.security_info:
                 showSecurityPopUp();
                 break;
 
-            case R.id.report_site_issue:
-                SessionManager.getInstance().createSession(Source.MENU, SupportUtils.REPORT_SITE_ISSUE_URL.concat(getUrl()));
-                TelemetryWrapper.reportSiteIssueEvent();
+            case R.id.report_site_issue: {
+                final IWebView webView = getWebView();
+                if (webView == null) {
+                    break;
+                }
+
+                ScreenshotHandler.provideInstance().grabScreenshot(webView, new ScreenshotHandler.ScreenshotCallback() {
+                    @Override
+                    public void screenshotGrabbed() {
+                        // Create a new session when the screenshot has been grabbed, otherwise the webView state
+                        // could have changed before the end of the script execution.
+                        SessionManager.getInstance()
+                            .createSession(Source.MENU, SupportUtils.REPORT_SITE_ISSUE_URL.concat(getUrl()));
+                        TelemetryWrapper.reportSiteIssueEvent();
+                    }
+                });
                 break;
+            }
 
             default:
                 throw new IllegalArgumentException("Unhandled menu item in BrowserFragment");

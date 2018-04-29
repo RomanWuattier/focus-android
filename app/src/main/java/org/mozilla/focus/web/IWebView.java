@@ -5,10 +5,13 @@
 
 package org.mozilla.focus.web;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+import android.webkit.ValueCallback;
 import org.mozilla.focus.session.Session;
 
 public interface IWebView {
@@ -60,7 +63,7 @@ public interface IWebView {
          * Some IWebView implementations may pass a custom View which contains the web contents in
          * full screen mode.
          */
-        void onEnterFullScreen(@NonNull  FullscreenCallback callback, @Nullable View view);
+        void onEnterFullScreen(@NonNull FullscreenCallback callback, @Nullable View view);
 
         /**
          * Notify the host application that the current page has exited full screen mode.
@@ -124,4 +127,8 @@ public interface IWebView {
      * Get the title of the currently displayed website.
      */
     String getTitle();
+
+    void grabScreenshot(@NonNull ValueCallback<String> callback);
+
+    void postScreenshot(@NonNull String screenshot, @NonNull String originUrl, @Nullable ValueCallback<String> callback);
 }
